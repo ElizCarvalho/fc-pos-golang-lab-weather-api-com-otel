@@ -1,9 +1,10 @@
 package usecase
 
 import (
+	"context"
 	"testing"
 
-	"weather-api-lab/internal/domain"
+	"github.com/ElizCarvalho/fc-pos-golang-lab-weather-api-com-otel/service-b/internal/domain"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -13,8 +14,8 @@ type MockViaCEPClient struct {
 	mock.Mock
 }
 
-func (m *MockViaCEPClient) GetLocationByZipcode(zipcode string) (*domain.Location, error) {
-	args := m.Called(zipcode)
+func (m *MockViaCEPClient) GetLocationByZipcode(ctx context.Context, zipcode string) (*domain.Location, error) {
+	args := m.Called(ctx, zipcode)
 	if args.Get(0) == nil {
 		return nil, args.Error(1)
 	}
@@ -25,8 +26,8 @@ type MockWeatherClient struct {
 	mock.Mock
 }
 
-func (m *MockWeatherClient) GetTemperatureByLocation(location *domain.Location) (float64, error) {
-	args := m.Called(location)
+func (m *MockWeatherClient) GetTemperatureByLocation(ctx context.Context, location *domain.Location) (float64, error) {
+	args := m.Called(ctx, location)
 	return args.Get(0).(float64), args.Error(1)
 }
 
@@ -113,16 +114,16 @@ func TestWeatherUseCaseGetWeatherByZipcode(t *testing.T) {
 			mockWeather := new(MockWeatherClient)
 
 			// Configurar expectativas dos mocks
-			mockViaCEP.On("GetLocationByZipcode", tt.zipcode).Return(tt.mockLocation, tt.mockLocationErr)
+			mockViaCEP.On("GetLocationByZipcode", mock.Anything, tt.zipcode).Return(tt.mockLocation, tt.mockLocationErr)
 			if tt.mockLocation != nil {
-				mockWeather.On("GetTemperatureByLocation", tt.mockLocation).Return(tt.mockTemperature, tt.mockTemperatureErr)
+				mockWeather.On("GetTemperatureByLocation", mock.Anything, tt.mockLocation).Return(tt.mockTemperature, tt.mockTemperatureErr)
 			}
 
 			// Criar usecase com mocks
 			usecase := NewWeatherUseCase(mockViaCEP, mockWeather)
 
 			// Executar teste
-			result, err := usecase.GetWeatherByZipcode(tt.zipcode)
+			result, err := usecase.GetWeatherByZipcode(context.Background(), tt.zipcode)
 
 			// Verificar resultado
 			if tt.expectedErr != nil {
