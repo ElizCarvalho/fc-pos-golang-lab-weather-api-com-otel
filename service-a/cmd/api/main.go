@@ -73,14 +73,11 @@ func setupConfig() *viper.Viper {
 	v.AutomaticEnv()
 
 	v.SetConfigFile(".env")
-	if err := v.ReadInConfig(); err == nil {
-		log.Println(".env file loaded")
+	if err := v.ReadInConfig(); err != nil {
+		log.Printf("Warning: .env file not found: %v", err)
+		log.Println("Using default values and environment variables")
 	} else {
-		// Fallback para .env.example se .env não existir
-		v.SetConfigFile(".env.example")
-		if err := v.ReadInConfig(); err == nil {
-			log.Println(".env.example file loaded")
-		}
+		log.Println(".env file loaded")
 	}
 
 	return v
