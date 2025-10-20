@@ -63,6 +63,7 @@ func TestWeatherAPIIntegration(t *testing.T) {
 			mockTemperatureErr: nil,
 			expectedStatus:     http.StatusOK,
 			expectedResponse: domain.Weather{
+				City:  "Belford Roxo",
 				TempC: 25.5,
 				TempF: 77.9,
 				TempK: 298.5,
