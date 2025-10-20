@@ -1,11 +1,15 @@
 package handler
 
 import (
+	"bytes"
+	"context"
+	"encoding/json"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 
-	"weather-api-lab/internal/domain"
+	"github.com/ElizCarvalho/fc-pos-golang-lab-weather-api-com-otel/service-b/internal/domain"
+	"github.com/ElizCarvalho/fc-pos-golang-lab-weather-api-com-otel/service-b/internal/dto"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -15,8 +19,8 @@ type MockWeatherUseCase struct {
 	mock.Mock
 }
 
-func (m *MockWeatherUseCase) GetWeatherByZipcode(zipcode string) (*domain.Weather, error) {
-	args := m.Called(zipcode)
+func (m *MockWeatherUseCase) GetWeatherByZipcode(ctx context.Context, zipcode string) (*domain.Weather, error) {
+	args := m.Called(ctx, zipcode)
 	if args.Get(0) == nil {
 		return nil, args.Error(1)
 	}
@@ -90,14 +94,19 @@ func TestWeatherHandlerGetWeather(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			// Criar mock
 			mockUseCase := new(MockWeatherUseCase)
-			mockUseCase.On("GetWeatherByZipcode", tt.zipcode).Return(tt.mockWeather, tt.mockErr)
+			mockUseCase.On("GetWeatherByZipcode", mock.Anything, tt.zipcode).Return(tt.mockWeather, tt.mockErr)
 
 			// Criar handler
 			handler := NewWeatherHandler(mockUseCase)
 			router := handler.SetupRoutes()
 
+			// Criar JSON body
+			requestBody := dto.WeatherRequest{CEP: tt.zipcode}
+			jsonBody, _ := json.Marshal(requestBody)
+
 			// Criar requisição
-			req := httptest.NewRequest("GET", "/weather/"+tt.zipcode, nil)
+			req := httptest.NewRequest("POST", "/weather", bytes.NewBuffer(jsonBody))
+			req.Header.Set("Content-Type", "application/json")
 			recorder := httptest.NewRecorder()
 
 			// Executar requisição
