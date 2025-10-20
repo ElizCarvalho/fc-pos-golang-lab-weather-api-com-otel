@@ -1,6 +1,8 @@
 services:
   service-a:
-    build: ./service-a
+    build:
+      context: .
+      dockerfile: ./service-a/Dockerfile
     container_name: service-a
     ports:
       - "8080:8080"
@@ -13,7 +15,9 @@ services:
       - weather-network
 
   service-b:
-    build: ./service-b
+    build:
+      context: .
+      dockerfile: ./service-b/Dockerfile
     container_name: service-b
     ports:
       - "8081:8081"
