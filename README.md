@@ -71,6 +71,12 @@ curl -X POST http://localhost:8080/weather \
 
 ## 📸 Evidências de Funcionamento
 
+<img width="1499" height="817" alt="image" src="https://github.com/user-attachments/assets/82ebc7e4-91dd-419c-9770-58141a75ce23" />
+<img width="1505" height="838" alt="image" src="https://github.com/user-attachments/assets/9dc5615b-2364-4830-be6a-9d596266581e" />
+<img width="1489" height="767" alt="image" src="https://github.com/user-attachments/assets/f9c79cdc-786d-4048-a545-a2087ff36c59" />
+<img width="1455" height="637" alt="image" src="https://github.com/user-attachments/assets/7e1e7c79-6811-41a4-9e06-392ae03c64b3" />
+
+
 ### ✅ **API Funcionando**
 
 ```bash
@@ -95,7 +101,7 @@ $ curl -X POST http://localhost:8080/weather \
 $ docker ps
 CONTAINER ID   IMAGE                                              COMMAND                  STATUS                   PORTS
 41d9707f953a   fc-pos-golang-lab-weather-api-com-otel-service-a   "./service-a"            Up 2 minutes             0.0.0.0:8080->8080/tcp
-41a66a058c5c   fc-pos-golang-lab-weather-api-com-otel-service-b   "./main"                 Up 3 seconds             0.0.0.0:8081->8081/tcp
+41a66a058c5c   fc-pos-golang-lab-weather-api-com-otel-service-b   "./service-b"            Up 3 seconds             0.0.0.0:8081->8081/tcp
 6bd4b6c373f7   openzipkin/zipkin:latest                           "start-zipkin"           Up 4 minutes (healthy)   0.0.0.0:9411->9411/tcp
 3206162b56f0   otel/opentelemetry-collector:latest                "/otelcol --config=/…"   Up 4 minutes             0.0.0.0:4318->4318/tcp
 ```
