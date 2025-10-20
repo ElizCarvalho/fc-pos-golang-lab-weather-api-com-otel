@@ -9,13 +9,16 @@ import (
 func TestNewWeather(t *testing.T) {
 	tests := []struct {
 		name        string
+		city        string
 		tempCelsius float64
 		expected    Weather
 	}{
 		{
 			name:        "positive temperature",
+			city:        "São Paulo",
 			tempCelsius: 25.0,
 			expected: Weather{
+				City:  "São Paulo",
 				TempC: 25.0,
 				TempF: 77.0,
 				TempK: 298.0,
@@ -23,8 +26,10 @@ func TestNewWeather(t *testing.T) {
 		},
 		{
 			name:        "negative temperature",
+			city:        "Belford Roxo",
 			tempCelsius: -10.0,
 			expected: Weather{
+				City:  "Belford Roxo",
 				TempC: -10.0,
 				TempF: 14.0,
 				TempK: 263.0,
@@ -32,8 +37,10 @@ func TestNewWeather(t *testing.T) {
 		},
 		{
 			name:        "temperature with decimal",
+			city:        "Rio de Janeiro",
 			tempCelsius: 28.5,
 			expected: Weather{
+				City:  "Rio de Janeiro",
 				TempC: 28.5,
 				TempF: 83.3,
 				TempK: 301.5,
@@ -41,8 +48,10 @@ func TestNewWeather(t *testing.T) {
 		},
 		{
 			name:        "zero absolute",
+			city:        "Test City",
 			tempCelsius: -273.0,
 			expected: Weather{
+				City:  "Test City",
 				TempC: -273.0,
 				TempF: -459.4,
 				TempK: 0.0,
@@ -52,7 +61,7 @@ func TestNewWeather(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			result := NewWeather(tt.tempCelsius)
+			result := NewWeather(tt.city, tt.tempCelsius)
 			assert.Equal(t, tt.expected, result)
 		})
 	}
