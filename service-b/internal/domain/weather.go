@@ -6,6 +6,7 @@ import (
 )
 
 type Weather struct {
+	City  string  `json:"city"`
 	TempC float64 `json:"temp_C"`
 	TempF float64 `json:"temp_F"`
 	TempK float64 `json:"temp_K"`
@@ -16,9 +17,10 @@ type Location struct {
 	State string `json:"state"`
 }
 
-// NewWeather cria uma nova instância de Weather a partir da temperatura em Celsius
-func NewWeather(tempCelsius float64) Weather {
+// NewWeather cria uma nova instância de Weather a partir da temperatura em Celsius e cidade
+func NewWeather(city string, tempCelsius float64) Weather {
 	return Weather{
+		City:  city,
 		TempC: roundToOneDecimal(tempCelsius),
 		TempF: roundToOneDecimal(celsiusToFahrenheit(tempCelsius)),
 		TempK: roundToOneDecimal(celsiusToKelvin(tempCelsius)),
