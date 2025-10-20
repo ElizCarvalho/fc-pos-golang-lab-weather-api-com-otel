@@ -40,13 +40,14 @@ func TestWeatherHandlerGetWeather(t *testing.T) {
 			name:    "sucesso - CEP válido",
 			zipcode: "26140040",
 			mockWeather: &domain.Weather{
+				City:  "Belford Roxo",
 				TempC: 25.5,
 				TempF: 77.9,
 				TempK: 298.5,
 			},
 			mockErr:        nil,
 			expectedStatus: http.StatusOK,
-			expectedBody:   `{"temp_C":25.5,"temp_F":77.9,"temp_K":298.5}`,
+			expectedBody:   `{"city":"Belford Roxo","temp_C":25.5,"temp_F":77.9,"temp_K":298.5}`,
 		},
 		{
 			name:           "error - invalid zipcode",
