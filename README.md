@@ -5,9 +5,13 @@ Sistema de microserviços em Go que recebe um CEP e retorna o clima atual com ob
 ## 🏗️ Arquitetura
 
 ```mermaid
-Cliente → [Service A:8080] → [Service B:8081] → [ViaCEP + WeatherAPI]
-         ↓                   ↓
-    [Zipkin:9411] ← [OTEL Collector:4318]
+graph LR
+    A[Cliente] --> B[Service A:8080]
+    B --> C[Service B:8081]
+    C --> D[ViaCEP + WeatherAPI]
+    B --> E[Zipkin:9411]
+    C --> E
+    E --> F[OTEL Collector:4318]
 ```
 
 - **Service A**: Gateway (validação + roteamento)
