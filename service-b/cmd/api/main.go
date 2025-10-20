@@ -20,18 +20,20 @@ import (
 func main() {
 	config := setupConfig()
 
-	// Inicializar OpenTelemetry
+	// Inicializa o OpenTelemetry
 	shutdown, err := otel.InitTracer("service-b", config.GetString("zipkin_url"))
 	if err != nil {
 		log.Fatalf("Failed to initialize tracer: %v", err)
 	}
 	defer shutdown()
 
+	// Configura os clientes
 	viacepClient := repository.NewViaCEPClient(config.GetString("viacep_base_url"))
 	weatherClient := repository.NewWeatherClient(config.GetString("weather_api_base_url"), config.GetString("weather_api_key"))
 	weatherUseCase := usecase.NewWeatherUseCase(viacepClient, weatherClient)
 	weatherHandler := handler.NewWeatherHandler(weatherUseCase)
 
+	// Configura o servidor
 	server := &http.Server{
 		Addr:         fmt.Sprintf(":%d", config.GetInt("port")),
 		Handler:      weatherHandler.SetupRoutes(),
@@ -39,6 +41,7 @@ func main() {
 		WriteTimeout: 10 * time.Second,
 	}
 
+	// Inicia o servidor
 	go func() {
 		log.Printf("Service B running on port %d", config.GetInt("port"))
 		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
@@ -46,15 +49,18 @@ func main() {
 		}
 	}()
 
+	// Aguarda o sinal de parada
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 	<-quit
 
 	log.Println("Stopping Service B...")
 
+	// Fecha o servidor
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
+	// Encerra o servidor
 	if err := server.Shutdown(ctx); err != nil {
 		log.Fatalf("Error stopping server: %v", err)
 	}
