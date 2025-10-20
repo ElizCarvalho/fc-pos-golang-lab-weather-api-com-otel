@@ -53,6 +53,7 @@ func TestWeatherUseCaseGetWeatherByZipcode(t *testing.T) {
 			mockTemperature:    25.5,
 			mockTemperatureErr: nil,
 			expectedWeather: &domain.Weather{
+				City:  "Belford Roxo",
 				TempC: 25.5,
 				TempF: 77.9,
 				TempK: 298.5,
