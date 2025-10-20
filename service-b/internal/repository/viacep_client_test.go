@@ -1,13 +1,14 @@
 package repository
 
 import (
+	"context"
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 
-	"weather-api-lab/internal/domain"
-	"weather-api-lab/internal/dto"
+	"github.com/ElizCarvalho/fc-pos-golang-lab-weather-api-com-otel/service-b/internal/domain"
+	"github.com/ElizCarvalho/fc-pos-golang-lab-weather-api-com-otel/service-b/internal/dto"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -17,8 +18,8 @@ type MockViaCEPClient struct {
 	mock.Mock
 }
 
-func (m *MockViaCEPClient) GetLocationByZipcode(zipcode string) (*domain.Location, error) {
-	args := m.Called(zipcode)
+func (m *MockViaCEPClient) GetLocationByZipcode(ctx context.Context, zipcode string) (*domain.Location, error) {
+	args := m.Called(ctx, zipcode)
 	if args.Get(0) == nil {
 		return nil, args.Error(1)
 	}
@@ -82,7 +83,7 @@ func TestViaCEPClientGetLocationByZipcode(t *testing.T) {
 			client := NewViaCEPClient(server.URL)
 
 			// Executar teste
-			result, err := client.GetLocationByZipcode(tt.zipcode)
+			result, err := client.GetLocationByZipcode(context.Background(), tt.zipcode)
 
 			// Verificar resultado
 			if tt.expectedErr != nil {
