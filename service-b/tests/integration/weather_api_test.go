@@ -1,17 +1,19 @@
 package integration
 
 import (
+	"bytes"
+	"context"
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
 	"os"
 	"testing"
 
-	"weather-api-lab/internal/domain"
-	"weather-api-lab/internal/dto"
-	"weather-api-lab/internal/handler"
-	"weather-api-lab/internal/repository"
-	"weather-api-lab/internal/usecase"
+	"github.com/ElizCarvalho/fc-pos-golang-lab-weather-api-com-otel/service-b/internal/domain"
+	"github.com/ElizCarvalho/fc-pos-golang-lab-weather-api-com-otel/service-b/internal/dto"
+	"github.com/ElizCarvalho/fc-pos-golang-lab-weather-api-com-otel/service-b/internal/handler"
+	"github.com/ElizCarvalho/fc-pos-golang-lab-weather-api-com-otel/service-b/internal/repository"
+	"github.com/ElizCarvalho/fc-pos-golang-lab-weather-api-com-otel/service-b/internal/usecase"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -21,8 +23,8 @@ type MockViaCEPClient struct {
 	mock.Mock
 }
 
-func (m *MockViaCEPClient) GetLocationByZipcode(zipcode string) (*domain.Location, error) {
-	args := m.Called(zipcode)
+func (m *MockViaCEPClient) GetLocationByZipcode(ctx context.Context, zipcode string) (*domain.Location, error) {
+	args := m.Called(ctx, zipcode)
 	if args.Get(0) == nil {
 		return nil, args.Error(1)
 	}
@@ -33,8 +35,8 @@ type MockWeatherClient struct {
 	mock.Mock
 }
 
-func (m *MockWeatherClient) GetTemperatureByLocation(location *domain.Location) (float64, error) {
-	args := m.Called(location)
+func (m *MockWeatherClient) GetTemperatureByLocation(ctx context.Context, location *domain.Location) (float64, error) {
+	args := m.Called(ctx, location)
 	return args.Get(0).(float64), args.Error(1)
 }
 
@@ -114,9 +116,9 @@ func TestWeatherAPIIntegration(t *testing.T) {
 			mockWeather := new(MockWeatherClient)
 
 			// Configurar expectativas dos mocks
-			mockViaCEP.On("GetLocationByZipcode", tt.zipcode).Return(tt.mockLocation, tt.mockLocationErr)
+			mockViaCEP.On("GetLocationByZipcode", mock.Anything, tt.zipcode).Return(tt.mockLocation, tt.mockLocationErr)
 			if tt.mockLocation != nil {
-				mockWeather.On("GetTemperatureByLocation", tt.mockLocation).Return(tt.mockTemperature, tt.mockTemperatureErr)
+				mockWeather.On("GetTemperatureByLocation", mock.Anything, tt.mockLocation).Return(tt.mockTemperature, tt.mockTemperatureErr)
 			}
 
 			// Criar dependências com mocks
@@ -124,8 +126,13 @@ func TestWeatherAPIIntegration(t *testing.T) {
 			weatherHandler := handler.NewWeatherHandler(weatherUseCase)
 			router := weatherHandler.SetupRoutes()
 
+			// Criar JSON body
+			requestBody := dto.WeatherRequest{CEP: tt.zipcode}
+			jsonBody, _ := json.Marshal(requestBody)
+
 			// Criar requisição
-			req := httptest.NewRequest("GET", "/weather/"+tt.zipcode, nil)
+			req := httptest.NewRequest("POST", "/weather", bytes.NewBuffer(jsonBody))
+			req.Header.Set("Content-Type", "application/json")
 			recorder := httptest.NewRecorder()
 
 			// Executar requisição
@@ -174,7 +181,11 @@ func TestWeatherAPIRealIntegration(t *testing.T) {
 
 	// Testar com CEP real conhecido
 	zipcode := "26140040" // Av. General Jose Muller, Belford Roxo, RJ
-	req := httptest.NewRequest("GET", "/weather/"+zipcode, nil)
+	requestBody := dto.WeatherRequest{CEP: zipcode}
+	jsonBody, _ := json.Marshal(requestBody)
+
+	req := httptest.NewRequest("POST", "/weather", bytes.NewBuffer(jsonBody))
+	req.Header.Set("Content-Type", "application/json")
 	recorder := httptest.NewRecorder()
 
 	// Executar requisição
