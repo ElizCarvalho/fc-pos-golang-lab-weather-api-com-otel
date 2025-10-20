@@ -1,14 +1,15 @@
 package repository
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 
-	"weather-api-lab/internal/domain"
-	"weather-api-lab/internal/dto"
+	"github.com/ElizCarvalho/fc-pos-golang-lab-weather-api-com-otel/service-b/internal/domain"
+	"github.com/ElizCarvalho/fc-pos-golang-lab-weather-api-com-otel/service-b/internal/dto"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -18,8 +19,8 @@ type MockWeatherClient struct {
 	mock.Mock
 }
 
-func (m *MockWeatherClient) GetTemperatureByLocation(location *domain.Location) (float64, error) {
-	args := m.Called(location)
+func (m *MockWeatherClient) GetTemperatureByLocation(ctx context.Context, location *domain.Location) (float64, error) {
+	args := m.Called(ctx, location)
 	return args.Get(0).(float64), args.Error(1)
 }
 
@@ -98,7 +99,7 @@ func TestWeatherClientGetTemperatureByLocation(t *testing.T) {
 			client := NewWeatherClient(server.URL, "test-key")
 
 			// Executar teste
-			result, err := client.GetTemperatureByLocation(tt.location)
+			result, err := client.GetTemperatureByLocation(context.Background(), tt.location)
 
 			// Verificar resultado
 			if tt.expectedErr != nil {
