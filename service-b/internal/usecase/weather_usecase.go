@@ -36,8 +36,8 @@ func (u *weatherUseCase) GetWeatherByZipcode(ctx context.Context, zipcode string
 		return nil, err
 	}
 
-	// 3. Criar objeto Weather com conversões
-	weather := domain.NewWeather(tempCelsius)
+	// 3. Criar objeto Weather com conversões e cidade
+	weather := domain.NewWeather(location.City, tempCelsius)
 
 	return &weather, nil
 }
