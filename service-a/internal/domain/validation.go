@@ -1,12 +1,7 @@
 package domain
 
 import (
-	"errors"
 	"regexp"
-)
-
-var (
-	ErrInvalidZipcode = errors.New("invalid zipcode")
 )
 
 func ValidateZipcode(cep string) error {
