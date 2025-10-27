@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/ElizCarvalho/fc-pos-golang-lab-weather-api-com-otel/service-a/internal/domain"
 	"github.com/ElizCarvalho/fc-pos-golang-lab-weather-api-com-otel/service-a/internal/dto"
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 )
@@ -67,9 +68,9 @@ func (c *serviceBClient) GetWeather(ctx context.Context, cep string) (*dto.Weath
 	if resp.StatusCode != http.StatusOK {
 		var errorResp dto.ErrorResponse
 		if err := json.Unmarshal(body, &errorResp); err != nil {
-			return nil, fmt.Errorf("service B error (status %d): %s", resp.StatusCode, string(body))
+			return nil, domain.NewServiceError(resp.StatusCode, string(body))
 		}
-		return nil, fmt.Errorf("service B error: %s", errorResp.Message)
+		return nil, domain.NewServiceError(resp.StatusCode, errorResp.Message)
 	}
 
 	// Parsea a resposta de sucesso
