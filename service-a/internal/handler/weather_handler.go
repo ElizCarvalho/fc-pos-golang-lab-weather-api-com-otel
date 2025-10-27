@@ -2,6 +2,7 @@ package handler
 
 import (
 	"encoding/json"
+	"errors"
 	"log"
 	"net/http"
 
@@ -75,7 +76,7 @@ func (h *WeatherHandler) GetWeather(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		span.RecordError(err)
 		log.Printf("Error calling service B: %v", err)
-		h.writeErrorResponse(w, http.StatusInternalServerError, "internal server error")
+		h.handleServiceError(w, err)
 		return
 	}
 
@@ -97,4 +98,15 @@ func (h *WeatherHandler) writeErrorResponse(w http.ResponseWriter, statusCode in
 		Message: message,
 	}
 	h.writeJSONResponse(w, statusCode, errorResp)
+}
+
+// Trata erros do Service B preservando o status code
+func (h *WeatherHandler) handleServiceError(w http.ResponseWriter, err error) {
+	var serviceErr *domain.ServiceError
+	if ok := errors.As(err, &serviceErr); ok {
+		h.writeErrorResponse(w, serviceErr.StatusCode, serviceErr.Message)
+		return
+	}
+
+	h.writeErrorResponse(w, http.StatusInternalServerError, "internal server error")
 }
